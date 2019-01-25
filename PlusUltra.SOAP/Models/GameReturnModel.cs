@@ -17,6 +17,7 @@ namespace PlusUltra.SOAP.Models
         public string GameName { get; set; }
         public int GameNumber { get; set; }
         public int OrganizationId { get; set; }
+        public string ErrorMessage { get; set; }
 
         public GameReturnModel() { }
 

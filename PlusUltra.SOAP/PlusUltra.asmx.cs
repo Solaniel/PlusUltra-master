@@ -20,7 +20,7 @@ namespace PlusUltra.SOAP
     // [System.Web.Script.Services.ScriptService]
     public class PlusUltra : System.Web.Services.WebService
     {
-        private readonly PlusUltraDbContext db = new PlusUltraDbContext();
+
         private readonly UnitOfWork uow;
 
         /// <summary>
@@ -45,6 +45,7 @@ namespace PlusUltra.SOAP
             return result;
         }
 
+        //error message, getgamebyid postman
 
         /// <summary>
         /// A web method that finds a game by ID and display it
@@ -54,11 +55,20 @@ namespace PlusUltra.SOAP
         [WebMethod]
         public GameReturnModel GetGameById(int gameId)
         {
-            Game dbGame = uow.GameRepository.GetById(gameId);
-            if (dbGame == null)
-                throw new Exception($"Couldn't find game with ID:{gameId}");
-            GameReturnModel result = new GameReturnModel(dbGame);
-            return result;
+            try
+            {
+                Game dbGame = uow.GameRepository.GetById(gameId);
+                if (dbGame == null)
+                    throw new Exception($"Couldn't find game with ID:{gameId}");
+                GameReturnModel result = new GameReturnModel(dbGame);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                GameReturnModel em = new GameReturnModel();
+                em.ErrorMessage = ex.GetBaseException().Message;
+                return em;
+            }       
         }
 
         /// <summary>

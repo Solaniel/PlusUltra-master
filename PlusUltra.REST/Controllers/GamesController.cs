@@ -11,14 +11,12 @@ using PlusUltra.REST.Models;
 
 namespace PlusUltra.REST.Controllers
 {
+    [RoutePrefix("api/games")]
     public class GamesController : ApiController
-    {
-        private readonly PlusUltraDbContext db = new PlusUltraDbContext();
+    { 
+        
         private readonly UnitOfWork uow;
         
-
-
-
         public GamesController()
         {
             uow = new UnitOfWork(new PlusUltraDbContext());
@@ -30,7 +28,8 @@ namespace PlusUltra.REST.Controllers
         /// creates a new list with every game in it
         /// </summary>
         /// <returns>A list with all games on the database</returns>
-        [HttpGet]      
+        [HttpGet]   
+        [Route]
         public List<GameModel> Get()
         { 
             var allGames = uow.GameRepository.GetAll()
@@ -45,19 +44,19 @@ namespace PlusUltra.REST.Controllers
         /// </summary>
         /// <param name="id">The ID that we use to search by</param>
         /// <returns>An object with the same ID as the parameter</returns>
+        
         [HttpGet]
+        [Route("{id:int}")]
         public IHttpActionResult GetById(int id)
         {
-            if (id == null)
-                return BadRequest("The parameter id is empty");
-
             Game game = uow.GameRepository.GetById(id);
             if (game == null)
-                return BadRequest($"Could not find book with ID:{id}");
+            {
+                return BadRequest($"Could not find game with ID:{id}");
+            }
 
             GameModel apiGame = new GameModel(game);
             return Ok(apiGame);
-
         }
 
         /// <summary>
@@ -66,6 +65,7 @@ namespace PlusUltra.REST.Controllers
         /// <param name="game"></param>
         /// <returns>Returns an http result(OK) with the new game created</returns>
         [HttpPost]
+        [Route]
         public IHttpActionResult Post(GameModel game)
         {
             try
@@ -76,8 +76,6 @@ namespace PlusUltra.REST.Controllers
                 GameModel newGame = new GameModel(dbGame);
                 uow.GameRepository.Save(dbGame);
                 return Ok(newGame);
-
-
             }
             catch(Exception ex)
             {
@@ -91,6 +89,7 @@ namespace PlusUltra.REST.Controllers
         /// <param name="game"></param>
         /// <returns>Returns an http result(OK) with the current object edited </returns>
         [HttpPut]
+        [Route]
         public IHttpActionResult Put(GameModel game)
         {
             Game dbGame = uow.GameRepository.GetById(game.Id);
@@ -109,28 +108,23 @@ namespace PlusUltra.REST.Controllers
         /// <param name="id">The ID that we use to search by</param>
         /// <returns>A status code (204 No content)</returns>
         [HttpDelete]
+        [Route("{id:int}")]
         public IHttpActionResult Delete(int id)
         {
             try
             {
-
                 Game dbGame = uow.GameRepository.GetById(id);
                 if (dbGame == null)
                     return NotFound();
 
                 uow.GameRepository.DeleteByID(id);
 
-
                 return StatusCode(HttpStatusCode.NoContent);
-
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
         }
-
-       
-
     }
 }
